@@ -5,7 +5,6 @@
 #define WIFI_PASS "poporing" 
 
 WiFiClient client;
-char strBuffer[100];
 
 void setup() {
 
