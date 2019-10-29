@@ -15,46 +15,73 @@ void vNavBarRefresh(void* pvParameters){
   for(;;){
 
     /* WiFi Status & Signal Strength Indicator */
-    if(m5State == WIFICONNECTED || m5State == PROCESSING){
-      M5.Lcd.pushImage(40, 3, 27, 18, (uint16_t *)wifi3);
-      if(WiFi.RSSI() > -55){
+    if(m5State == WIFICONNECTED){
+      if(m5LastState != WIFICONNECTED){
         M5.Lcd.pushImage(40, 3, 27, 18, (uint16_t *)wifi3);
-      }else if(WiFi.RSSI() > -70){
-        M5.Lcd.pushImage(40, 3, 27, 18, (uint16_t *)wifi2);
-      }else{
-        M5.Lcd.pushImage(40, 3, 27, 18, (uint16_t *)wifi1);
+        m5LastState = WIFICONNECTED;
+      }
+    }else if(m5State == PROCESSING){
+      if(m5LastState != PROCESSING){
+        M5.Lcd.pushImage(40, 3, 27, 18, (uint16_t *)wifi3);
+        m5LastState = PROCESSING;
       }
     }else{
-      M5.Lcd.fillRect(40, 3, 27, 18, 0x0000);
+      if(m5LastState != NONETWORK){
+        M5.Lcd.fillRect(40, 3, 27, 18, 0x0000);
+        m5LastState = NONETWORK;
+      }
     }
 
     if(microgear.connected()){
-      M5.Lcd.pushImage(70, 4, 18, 18, (uint16_t *)netpie);
+      if(netpieState != microgear.connected()){
+        M5.Lcd.pushImage(70, 4, 18, 18, (uint16_t *)netpie);
+        netpieState = microgear.connected();
+      }
     }else{
-      M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
+      if(netpieState == microgear.connected()){
+        M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
+        netpieState = microgear.connected();
+      }
     }
 
     /* Time */
     if(timeStatus() == timeSet){
       currentTime = now();
-      sprintf(charBuffer, "%02d:%02d", (hour(currentTime)+7)%24, minute(currentTime));
-      M5.Lcd.drawString(charBuffer , M5.Lcd.width()/2-30, 2, 4);
+      if(timeMinute != minute(currentTime)){
+        timeMinute = minute(currentTime);
+        sprintf(charBuffer, "%02d:%02d", (hour(currentTime)+7)%24, minute(currentTime));
+        M5.Lcd.drawString(charBuffer , M5.Lcd.width()/2-30, 2, 4);
+      }
     }
 
     /* Power/Battery Status Indicator */
     if(M5.Power.isCharging()){
-      M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)battchg);
+      if(batteryLevel != 200){
+        M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)battchg);
+        batteryLevel = 200;
+      }
     }else{
       if(M5.Power.getBatteryLevel() == 100){
-        M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt100);
+        if(batteryLevel != 100){
+          M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt100);
+          batteryLevel = 100;
+        }
       }else if(M5.Power.getBatteryLevel() == 75){
-        M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt75);
+        if(batteryLevel != 75){
+          M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt75);
+          batteryLevel = 75;
+        }
       }else if(M5.Power.getBatteryLevel() == 50){
-        M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt50);
+        if(batteryLevel != 50){
+          M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt50);
+          batteryLevel = 50;
+        }
       }else if(M5.Power.getBatteryLevel() == 25){
-        M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt25);
+        if(batteryLevel != 25){
+          M5.Lcd.pushImage(M5.Lcd.width()-39, 3, 38, 18, (uint16_t *)batt25);
+          batteryLevel = 25;
+        }
       }
-      
     }
 
     /* Clear Screen when Idle */
@@ -62,7 +89,8 @@ void vNavBarRefresh(void* pvParameters){
       screenTimer++;
       if(screenTimer > 40){
         //M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
-        M5.Lcd.fillRect(0,  40, M5.Lcd.width(), M5.Lcd.height(), 0x0000);
+        M5.Lcd.fillRect(0,  40, M5.Lcd.width(), 65, 0x0000);
+        M5.Lcd.fillRect(2,  M5.Lcd.height()-30, M5.Lcd.width()-2, 30, 0x0000);
         screenTimer = 0;
       }
     }else if(m5State == PROCESSING){
@@ -184,7 +212,7 @@ void vLEDdriver(void* pvParameters){
       vTaskDelay(500);
     }else if(m5State == WIFICONNECTED){
       for(int i=0; i<10; i++) { 
-          pixels[i].setRGB(0,   40 + (int)(sin((float) millis()/500.0)*20.0),   0);       
+          pixels[i].setRGB(0,   40,   0);       
       }
       FastLED.show();
     }else if(m5State == PROCESSING){
@@ -248,7 +276,7 @@ void vButtonRead(void* pvParameters){
 void vSensorRead(void* pvParameters){
   for(;;){
     /* USER CODE BEGIN *******************************************************/
-
+    M5.Lcd.drawString(String(analogRead(36)) + "      ", 2, 80, 4);
 
     /* USER CODE END *********************************************************/
     vTaskDelay(500);

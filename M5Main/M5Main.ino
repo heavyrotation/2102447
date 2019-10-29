@@ -42,7 +42,11 @@ enum m5State_t: byte{
     PROCESSING
 };
 m5State_t m5State = RESET;
+m5State_t m5LastState = RESET;
+uint16_t netpieState = 0;
 uint16_t screenTimer = 0;
+uint16_t timeMinute = 0;
+uint16_t batteryLevel = 0;
 
 /* UDP and NTP Setup BEGIN */
 IPAddress timeServerIP; 
@@ -75,6 +79,7 @@ void setup(){
   }
   FastLED.show();
 
+  pinMode(36, INPUT);
 
   /* WiFi initialization */
   WiFi.begin(WIFI_SSID, WIFI_PASS);  
