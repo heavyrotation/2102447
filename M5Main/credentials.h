@@ -1,9 +1,9 @@
 /* WiFi */
-#define WIFI_SSID "T's iPhone"
-#define WIFI_PASS "poporing"
+const char* WIFI_SSID = "T's iPhone";
+const char* WIFI_PASS = "poporing";
 
 /* NETPIE & MicroGear */
-#define APPID   "M5StackDemo"
-#define KEY     "SFqQdSX6DAcWpNo"
-#define SECRET  "fYv1rPNdIcpbePupV4j4uO4VI"
-#define ALIAS   "Toppppp" 
+char* APPID   = "M5StackDemo";
+char* KEY     = "SFqQdSX6DAcWpNo";
+char* SECRET  = "fYv1rPNdIcpbePupV4j4uO4VI";
+char* ALIAS   = "Suree";

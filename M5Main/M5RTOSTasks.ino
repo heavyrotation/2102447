@@ -28,13 +28,12 @@ void vNavBarRefresh(void* pvParameters){
       M5.Lcd.fillRect(40, 3, 27, 18, 0x0000);
     }
 
-    /* NETPIE */
-    if(m5State == PROCESSING){
+    if(microgear.connected()){
       M5.Lcd.pushImage(70, 4, 18, 18, (uint16_t *)netpie);
     }else{
-      //M5.Lcd.fillRect(70, 4, 18, 18, 0x0000);
+      M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
     }
-      
+
     /* Time */
     if(timeStatus() == timeSet){
       currentTime = now();
@@ -62,14 +61,14 @@ void vNavBarRefresh(void* pvParameters){
     if(m5State == WIFICONNECTED){
       screenTimer++;
       if(screenTimer > 40){
-        M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
+        //M5.Lcd.fillRect(70, 4, 18, 18, 0x0000); //NETPIE icon
         M5.Lcd.fillRect(0,  40, M5.Lcd.width(), M5.Lcd.height(), 0x0000);
         screenTimer = 0;
       }
     }else if(m5State == PROCESSING){
       screenTimer = 0;
     }
-    vTaskDelay(250);
+    vTaskDelay(500);
   }
 }
 
@@ -85,6 +84,7 @@ void vJoinNetwork(void* pvParameters){
       }
 
     }
+    
     vTaskDelay(3000);
   }
 }
@@ -161,6 +161,9 @@ void vMicroGearLoop(void* pvParameters){
     if(m5State == PROCESSING){
       m5State = WIFICONNECTED;
     }
+    if(!microgear.connected()){
+      microgear.connect(APPID);
+    }
     vTaskDelay(1000);
 
   }
@@ -216,7 +219,7 @@ void vButtonRead(void* pvParameters){
     /* USER CODE BEGIN *******************************************************/
 
     if(M5.BtnA.wasPressed()) {
-      microgear.chat(ALIAS, "Hello! Toppppp" + String(second(currentTime))); 
+      microgear.chat("Toppppp", "Hello! Toppppp" + String(second(currentTime))); 
       M5.Lcd.fillRect(2,  M5.Lcd.height()-30, M5.Lcd.width()-2, 30, 0x0000);
       M5.Lcd.drawString("<Hello! Toppppp " + String(second(currentTime)), 2, M5.Lcd.height()-30, 4);
       m5State = PROCESSING;
@@ -232,13 +235,13 @@ void vButtonRead(void* pvParameters){
     if(M5.BtnC.wasPressed()) {
       microgear.chat("Wanchalerm", "Hello! Wanchalerm" + String(second(currentTime))); 
       M5.Lcd.fillRect(2,  M5.Lcd.height()-30, M5.Lcd.width()-2, 30, 0x0000);
-      M5.Lcd.drawString("<Hello! Wanchalerm " + String(second(currentTime)), 2, M5.Lcd.height()-30, 4);
+      M5.Lcd.drawString("<Hello! Wanchalerm  " + String(second(currentTime)), 2, M5.Lcd.height()-30, 4);
       m5State = PROCESSING;
     }
 
     /* USER CODE END *********************************************************/
   
-    vTaskDelay(10);
+    vTaskDelay(50);
   }
 }
 

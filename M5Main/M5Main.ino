@@ -22,6 +22,7 @@
 
 /* USER CODE END Includes */
 
+
 /* Private define ------------------------------------------------------------*/
 
 WiFiUDP udp;
@@ -74,9 +75,11 @@ void setup(){
   }
   FastLED.show();
 
+
   /* WiFi initialization */
   WiFi.begin(WIFI_SSID, WIFI_PASS);  
 
+  //microgear.resetToken(); 
   microgear.init(KEY, SECRET, ALIAS);   /* Initial with KEY, SECRET and also set the ALIAS here */
   microgear.connect(APPID);             /* connect to NETPIE to a specific APPID */
 
@@ -89,7 +92,7 @@ void setup(){
   xTaskCreate(
     vNavBarRefresh, /* Function to implement the task */
     "NavBarRefresh", /* Name of the task */
-    10000,  /* Stack size in words */
+    20000,  /* Stack size in words */
     NULL,  /* Task input parameter */
     5,  /* Priority of the task */
     NULL); 
@@ -97,7 +100,7 @@ void setup(){
   xTaskCreate(
     vJoinNetwork,          /* Task function. */
     "JoinNetwork",        /* String with name of task. */
-    10000,            /* Stack size in bytes. */
+    20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
     4,                /* Priority of the task. */
     NULL);            /* Task handle. */
@@ -105,7 +108,7 @@ void setup(){
   xTaskCreate(
     vSyncTime,          /* Task function. */
     "SyncTime",        /* String with name of task. */
-    10000,            /* Stack size in bytes. */
+    20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
     3,                /* Priority of the task. */
     NULL);            /* Task handle. */
@@ -113,15 +116,15 @@ void setup(){
   xTaskCreate(
     vButtonRead,
     "ButtonRead",
-    10000,
+    20000,
     NULL,
-    6,
+    10,
     NULL );
 
   xTaskCreate(
     vMicroGearLoop,
     "MicroGearLoop",
-    10000,
+    20000,
     NULL,
     1,
     NULL );
@@ -129,7 +132,7 @@ void setup(){
   xTaskCreate(
     vLEDdriver,
     "LEDdriver",
-    10000,
+    20000,
     NULL,
     1,
     NULL );
@@ -137,7 +140,7 @@ void setup(){
   xTaskCreate(
     vSensorRead,
     "SensorRead",
-    10000,
+    20000,
     NULL,
     1,
     NULL );
