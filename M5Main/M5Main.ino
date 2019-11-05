@@ -6,6 +6,8 @@
   Created on: September 24, 2019
   Last modified on: September 28, 2019
 */
+/* Private define ------------------------------------------------------------*/
+
 
 /* Includes ------------------------------------------------------------------*/
 /* Private includes ----------------------------------------------------------*/
@@ -19,11 +21,10 @@
 #include <TimeLib.h>
 #include "icons.h"
 #include "credentials.h"
-
+#include "DHTesp.h"
+#include "Ticker.h"
 /* USER CODE END Includes */
 
-
-/* Private define ------------------------------------------------------------*/
 
 WiFiUDP udp;
 WiFiClient client;
@@ -32,6 +33,11 @@ MicroGear microgear(client);
 
 /* FastLED Library */
 CRGB pixels[10];
+
+/* DHT22 ESP32 */
+DHTesp dht;
+/** Pin number for DHT11 data pin */
+int dhtPin = 26;
 
 /* Device States */
 enum m5State_t: byte{
@@ -62,6 +68,10 @@ uint32_t epoch;
 const uint32_t DEFAULT_TIME = 1483228800UL; // Jan 1 2017 0:00AM
 const uint32_t seventyYears = 2208988800UL; 
 
+TaskHandle_t vNavBarRefreshTaskHandler, vJoinNetworkTaskHandler, 
+vSyncTimeTaskHandler, vButtonReadTaskHandler, vMicroGearLoopTaskHandler, 
+vLEDdriverTaskHandler, vSensorReadTaskHandler;
+
 /* UDP and NTP setup END */
 
 void setup(){
@@ -79,7 +89,8 @@ void setup(){
   }
   FastLED.show();
 
-  pinMode(36, INPUT);
+  /* DHT22 initialization */
+  dht.setup(dhtPin, DHTesp::DHT22);
 
   /* WiFi initialization */
   WiFi.begin(WIFI_SSID, WIFI_PASS);  
@@ -100,7 +111,7 @@ void setup(){
     20000,  /* Stack size in words */
     NULL,  /* Task input parameter */
     5,  /* Priority of the task */
-    NULL); 
+    &vNavBarRefreshTaskHandler); 
 
   xTaskCreate(
     vJoinNetwork,          /* Task function. */
@@ -108,7 +119,7 @@ void setup(){
     20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
     4,                /* Priority of the task. */
-    NULL);            /* Task handle. */
+    &vJoinNetworkTaskHandler);            /* Task handle. */
 
   xTaskCreate(
     vSyncTime,          /* Task function. */
@@ -116,7 +127,7 @@ void setup(){
     20000,            /* Stack size in bytes. */
     NULL,             /* Parameter passed as input of the task */
     3,                /* Priority of the task. */
-    NULL);            /* Task handle. */
+    &vSyncTimeTaskHandler);            /* Task handle. */
 
   xTaskCreate(
     vButtonRead,
@@ -124,7 +135,7 @@ void setup(){
     20000,
     NULL,
     10,
-    NULL );
+    &vButtonReadTaskHandler );
 
   xTaskCreate(
     vMicroGearLoop,
@@ -132,7 +143,7 @@ void setup(){
     20000,
     NULL,
     1,
-    NULL );
+    &vMicroGearLoopTaskHandler );
 
   xTaskCreate(
     vLEDdriver,
@@ -140,7 +151,7 @@ void setup(){
     20000,
     NULL,
     1,
-    NULL );
+    &vLEDdriverTaskHandler );
 
   xTaskCreate(
     vSensorRead,
@@ -148,7 +159,7 @@ void setup(){
     20000,
     NULL,
     1,
-    NULL );
+    &vSensorReadTaskHandler );
 
 }
 
